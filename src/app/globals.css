@@ -1,26 +1,451 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light pink theme like the reference */
+  --background: #ffd3e6; /* deeper pink page background */
+  --foreground: #0e0e0e; /* primary text */
+  --accent: #ff3fa4; /* primary pink for buttons/highlights */
+  --accent-2: #ffd1e8; /* soft pink for borders/chips */
+  --accent-3: #ff6fb3; /* brighter pink for confetti */
+  --accent-blue: #8ec5ff; /* supportive blue accent */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', 'Poppins', sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Keep the same deeper pink even in dark mode per request */
+    --background: #ffd3e6;
+    --foreground: #0e0e0e;
   }
 }
 
+html {
+  box-sizing: border-box;
+}
+
 body {
-  background: var(--background);
+  font-family: var(--font-sans);
+  margin: 0;
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Retro consent overlay/card */
+.music-consent-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.15);
+  z-index: 50;
+}
+
+.retro-card {
+  background: linear-gradient(135deg, #fff5fb, #ffd1e8);
+  border: 3px dashed var(--accent);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(255, 63, 164, 0.25);
+  padding: 48px; /* generous padding so stickers never overlap */
+  width: min(900px, 92vw); /* bigger card */
+  min-height: 260px; /* taller card */
+  display: flex;
+  flex-direction: column; /* vertical flow for content */
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center; /* center text */
+  overflow: visible;
+  margin: 0 auto; /* always centered */
+  position: relative;
+}
+.hbd-chatbox {
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* Mobile-first adjustments */
+@media screen and (max-width: 520px) {
+  .retro-card {
+    width: 94vw; /* use almost full width */
+    max-width: none;
+    min-height: 220px; /* prevent vertical shrink */
+    padding: 22px 22px 56px 22px; /* compact but roomy */
+    transform: none !important; /* avoid any leftover scale */
+  }
+
+  .retro-sticker {
+    width: 48px;
+    height: 48px;
+  }
+
+  .send-btn {
+    margin: 16px auto 0;
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+  }
+
+  .hbd-chatbox {
+    font-size: 1.05rem; /* slightly larger text on mobile */
+  }
+
+  /* Ensure inner box stretches properly on small screens */
+  .four .text-box {
+    width: 94vw;
+    max-width: none;
+  }
+}
+
+.retro-card h3 {
+  margin: 0 0 8px 0;
+}
+
+.retro-card p {
+  margin: 8px 0 16px 0;
+  font-style: normal; /* prevent any accidental italics */
+  text-align: center; /* center text inside cards */
+}
+
+.retro-sticker {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.retro-sticker.s1 { left: -20px; top: -20px; transform: rotate(-12deg); }
+.retro-sticker.s2 { right: -20px; top: -20px; transform: rotate(10deg); }
+.retro-sticker.s3 { left: -18px; bottom: -18px; transform: rotate(8deg); }
+.retro-sticker.s4 { right: -18px; bottom: -18px; transform: rotate(-6deg); }
+
+.retro-content {
+  position: relative;
+  z-index: 1; /* keep text above stickers */
+}
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.song {
+  visibility: hidden;
+}
+
+.container {
+  height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  visibility: hidden;
+  width: 100vw;
+}
+
+.container > div {
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 20vh;
+}
+
+.one {
+  font-size: 4.5rem;
+}
+
+.two {
+  font-size: 1.2rem;
+  font-weight: lighter;
+}
+
+.three {
+  font-size: 3rem;
+}
+
+.four .text-box {
+  border: 3px solid var(--accent-2);
+  border-radius: 5px;
+  margin: 0 auto;
+  padding: 20px 20px 28px 20px;
+  position: relative;
+  width: 600px;
+}
+
+.text-box p {
+  margin: 0;
+  text-align: left;
+}
+
+.text-box span {
+  visibility: hidden;
+}
+
+/* Send button (theme-matched, centered) */
+.four .fake-btn {
+  display: inline-block;
+  background-color: var(--accent);
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0.8rem 1.4rem;
+  font-weight: 600;
+  margin: 16px auto 0;
+  position: static;
+}
+
+@keyframes sweep {
+  to {
+    left: 120%;
+  }
+}
+
+.five p {
+  font-size: 2rem;
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+
+.idea-3 strong {
+  border-radius: 3px;
+  display: inline-block;
+  padding: 3px 5px;
+}
+
+.five .idea-5 {
+  font-size: 4rem;
+}
+
+.idea-5 span, .idea-6 span, .wish-hbd span {
+  display: inline-block;
+}
+
+.idea-6 span{
+  font-size: 15rem;
+}
+
+.six {
+  position: relative;
+  top: 10vh;
+  z-index: 1;
+}
+
+.six img {
+  display: inline-block;
+  height: 350px;
+  max-width: 100%;
+}
+
+.six .hat {
+  left: 41.5%;
+  position: absolute;
+  top: -35%;
+  width: 80px;
+}
+
+.baloons img {
+  display: inline-block;
+  position: absolute;
+}
+
+.baloons img:nth-child(even) {
+  left: -10%;
+}
+
+.baloons img:nth-child(odd) {
+  right: -10%;
+}
+
+.baloons img:nth-child(3n + 0) {
+  left: 30%;
+}
+
+.seven, .eight {
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+}
+
+.eight svg {
+  left: 0;
+  position: absolute;
+  top: 0;
+  visibility: hidden;
+  width: 25px;
+  z-index: -1;
+}
+
+.eight svg:nth-child(1) {
+  fill: var(--accent-3);
+  left: 5vw;
+  top: 7vh;
+}
+
+.eight svg:nth-child(2) {
+  fill: var(--accent-2);
+  left: 35vw;
+  top: 23vh;
+}
+
+.eight svg:nth-child(3) {
+  fill: var(--accent);
+  left: 23vw;
+  top: 33vh;
+}
+
+.eight svg:nth-child(4) {
+  fill: var(--accent-blue);
+  left: 57vw;
+  top: 43vh;
+}
+
+.eight svg:nth-child(5) {
+  fill: #ff94da;
+  left: 7vw;
+  top: 68vh;
+}
+
+.eight svg:nth-child(6) {
+  fill: #ff3fa4;
+  left: 77vw;
+  top: 42vh;
+}
+
+.eight svg:nth-child(7) {
+  fill: #f7b7e5;
+  left: 83vw;
+  top: 68vh;
+}
+
+.eight svg:nth-child(8) {
+  fill: #c94db3;
+  left: 37vw;
+  top: 86vh;
+}
+
+.eight svg:nth-child(9) {
+  fill: #ff6ec7;
+  left: 87vw;
+  top: 94vh;
+}
+
+.wish-hbd {
+  font-size: 3em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.wish h5 {
+  font-size: 2rem;
+  font-weight: lighter;
+  margin: 10px 0 0;
+}
+
+.nine p {
+  font-size: 2rem;
+  font-weight: lighter;
+  font-style: normal; /* enforce non-italic */
+  text-align: center;
+}
+
+/* Final message responsiveness and containment */
+.final-message {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  font-style: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.final-message .word {
+  display: inline-block; /* smoother opacity animation per word */
+  margin-right: 0.35ch; /* visual space between animated words */
+  opacity: 0; /* start hidden to avoid flash and ensure stagger works */
+}
+.final-message .word:last-child { margin-right: 0; }
+
+/* Ensure the last card never appears skewed and clips safely */
+.nine .retro-card {
+  overflow: hidden;
+}
+
+#replay {
+  cursor: pointer;
+  z-index: 3;
+}
+
+/* Media Queries */
+@media screen and (max-height: 1000px) {
+  .six .hat {
+    left: 40%;
+  }
+}
+
+@media screen and (max-height: 800px) {
+  .six .hat {
+    left: 37%;
+  }
+}
+
+@media screen and (max-height: 700px) {
+  .six .hat {
+    left: 32%;
+  }
+}
+
+@media screen and (max-height: 850px) and (max-width: 450px) {
+  .six .hat {
+    left: 32%;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    width: 90%;
+  }
+
+  .four .text-box {
+    width: 90%;
+  }
+
+  .text-box .fake-btn {
+    bottom: -38px;
+    right: 5px;
+  }
+
+  .idea-5 span {
+    display: block;
+  }
+
+  .idea-6 span {
+    font-size: 10rem;
+  }
+
+  .six .hat {
+    width: 50px;
+  }
+
+  .wish-hbd {
+    font-size: 2.2em;
+  }
+
+  .wish h5 {
+    font-size: 1.4rem;
+  }
+
+  .nine p {
+    font-size: 1.5rem;
+    font-weight: lighter;
+  }
 }
