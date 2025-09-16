@@ -554,7 +554,7 @@ const BirthdayAnimation = () => {
         {/* Section 5: Profile and wish - EXACT original structure */}
         <div className="six" style={{ visibility: postVisible ? 'visible' : 'hidden', opacity: postVisible ? 1 : 0 }}>
           <img 
-            src="/assets/sonamm.jpg" 
+            src="/assets/sonamm.JPG" 
             alt="profile" 
             className="profile-picture" 
             id="imagePath"
